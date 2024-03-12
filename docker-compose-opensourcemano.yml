@@ -6,14 +6,17 @@ services:
       - "8080:80"
     depends_on:
       - nbi
+    restart: always
 
   lcm:
     image: opensourcemano/lcm
     depends_on:
       - kafka
+    restart: always
 
   ro:
     image: opensourcemano/ro
+    restart: always
 
   pol:
     image: opensourcemano/pol
@@ -21,38 +24,46 @@ services:
       - OSMPOL_MESSAGE_HOST=kafka
     depends_on:
       - kafka
+    restart: always
 
   keystone:
     image: opensourcemano/keystone
+    restart: always
 
   mon:
     image: opensourcemano/mon
+    restart: always
 
   nbi:
     image: opensourcemano/nbi
     depends_on:
       - kafka
-  
+    restart: always
+
   prometheus:
     image: opensourcemano/prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
+    restart: always
 
   pla:
     image: opensourcemano/pla
+    restart: always
 
   airflow:
     entrypoint: ["airflow", "standalone"]
     image: opensourcemano/airflow
-
-  tests:
-    image: opensourcemano/tests
+    restart: always
 
   webhook:
     image: opensourcemano/webhook
-
+    restart: always
+  
   mongo:
     image: mongo:latest
+    restart: always
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.4
@@ -61,11 +72,13 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     ports:
       - 22181:2181
-  
+    restart: always
+    
   kafka:
     image: confluentinc/cp-kafka:7.4.4
     depends_on:
       - zookeeper
+    restart: always
     ports:
       - 29092:29092
     environment:
