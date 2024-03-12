@@ -1,0 +1,77 @@
+version: "3.8"
+services:
+  ng-ui:
+    image: opensourcemano/ng-ui
+    ports:
+      - "8080:80"
+    depends_on:
+      - nbi
+
+  lcm:
+    image: opensourcemano/lcm
+    depends_on:
+      - kafka
+
+  ro:
+    image: opensourcemano/ro
+
+  pol:
+    image: opensourcemano/pol
+    environment:
+      - OSMPOL_MESSAGE_HOST=kafka
+    depends_on:
+      - kafka
+
+  keystone:
+    image: opensourcemano/keystone
+
+  mon:
+    image: opensourcemano/mon
+
+  nbi:
+    image: opensourcemano/nbi
+    depends_on:
+      - kafka
+  
+  prometheus:
+    image: opensourcemano/prometheus
+    ports:
+      - "9090:9090"
+
+  pla:
+    image: opensourcemano/pla
+
+  airflow:
+    entrypoint: ["airflow", "standalone"]
+    image: opensourcemano/airflow
+
+  tests:
+    image: opensourcemano/tests
+
+  webhook:
+    image: opensourcemano/webhook
+
+  mongo:
+    image: mongo:latest
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.4
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 22181:2181
+  
+  kafka:
+    image: confluentinc/cp-kafka:7.4.4
+    depends_on:
+      - zookeeper
+    ports:
+      - 29092:29092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
